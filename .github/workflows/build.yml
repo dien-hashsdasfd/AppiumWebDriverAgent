@@ -1,4 +1,4 @@
-name: Nặn File IPA
+name: Nặn File IPA (Bản chuẩn)
 
 on:
   workflow_dispatch:
@@ -7,25 +7,22 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - name: Lấy mã nguồn
-        uses: actions/checkout@v4
-
-      - name: Tải công cụ phụ trợ (Carthage)
-        run: ./Scripts/bootstrap.sh -d
+      - name: Lấy mã nguồn chuẩn của Appium (Mới nhất)
+        run: git clone https://github.com/appium/WebDriverAgent.git
 
       - name: Máy chủ Mac bắt đầu nung code
         run: |
+          cd WebDriverAgent
           xcodebuild build-for-testing \
             -project WebDriverAgent.xcodeproj \
             -scheme WebDriverAgentRunner \
             -destination 'generic/platform=iOS' \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
             -derivedDataPath ./build
 
       - name: Đóng gói thành file IPA
         run: |
+          cd WebDriverAgent
           mkdir Payload
           cp -r ./build/Build/Products/Debug-iphoneos/WebDriverAgentRunner-Runner.app Payload/
           zip -r WebDriverAgentRunner.ipa Payload
@@ -34,4 +31,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WebDriverAgentRunner_Cho_3uTools
-          path: WebDriverAgentRunner.ipa
+          path: WebDriverAgent/WebDriverAgentRunner.ipa
